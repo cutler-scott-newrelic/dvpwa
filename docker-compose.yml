@@ -7,9 +7,18 @@ services:
       dockerfile: Dockerfile.db
     ports:
       - 5432:5432
+    logging:
+      driver: fluentd
+    depends_on:
+      - fluentbit
+    command: ["postgres", "-c", "log_statement=all"]
 
   redis:
     image: redis:alpine
+    logging:
+      driver: fluentd
+    depends_on:
+      - fluentbit
 
   sqli:
     build:
@@ -18,7 +27,16 @@ services:
     depends_on:
       - postgres
       - redis
+      - fluentbit
     ports:
       - 8080:8080
     command: |
       wait-for postgres:5432 -- python run.py
+    logging:
+      driver: fluentd
+
+  fluentbit:
+    image: fluent/fluent-bit:1.5
+    command: /fluent-bit/bin/fluent-bit -i forward -o http://logstash.logging.staging-secops.nr-ops.net:12346 -p format=json -m '*'
+    ports:
+      - "127.0.0.1:24224:24224"
