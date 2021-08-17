@@ -37,6 +37,6 @@ services:
 
   fluentbit:
     image: fluent/fluent-bit:1.5
-    command: /fluent-bit/bin/fluent-bit -i forward -o http://logstash.logging.staging-secops.nr-ops.net:12346 -p format=json -m '*'
+    command: /fluent-bit/bin/fluent-bit -i forward -o http://127.0.0.1:12346 -p format=json -m '*'
     ports:
       - "127.0.0.1:24224:24224"
